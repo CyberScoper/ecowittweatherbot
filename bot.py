@@ -86,11 +86,11 @@ def send_scheduled_weather(chat_id):
 
 def schedule_job(chat_id, user_time):
     job_id = f"weather_{chat_id}"
-    # Try to remove the previous job if it exists
+   
     try:
         scheduler.remove_job(job_id)
     except JobLookupError:
-        pass  # Ignore the error if the job does not exist
+        pass 
 
     hour, minute = map(int, user_time.split(':'))
     scheduler.add_job(
@@ -132,30 +132,47 @@ def callback_weather(call):
     data = get_weather_data()
     if data:
         weather_message = format_weather_data(data)
-        bot.edit_message_text(
-            chat_id=call.message.chat.id,
-            message_id=call.message.message_id,
-            text=weather_message,
-            parse_mode='Markdown',
-            reply_markup=main_menu_inline()
-        )
+        if call.message.text != weather_message:
+            try:
+                bot.edit_message_text(
+                    chat_id=call.message.chat.id,
+                    message_id=call.message.message_id,
+                    text=weather_message,
+                    parse_mode='Markdown',
+                    reply_markup=main_menu_inline()
+                )
+            except telebot.apihelper.ApiTelegramException as e:
+                if "message is not modified" in str(e):
+                    pass
+                else:
+                    print(f"Ошибка при редактировании сообщения: {e}")
+        else:
+           
+            pass
     else:
-        bot.edit_message_text(
-            chat_id=call.message.chat.id,
-            message_id=call.message.message_id,
-            text="Sorry, could not retrieve weather data.",
-            reply_markup=main_menu_inline()
+        bot.answer_callback_query(
+            callback_query_id=call.id,
+            text="Не удалось получить данные о погоде.",
+            show_alert=True
         )
+
 
 @bot.callback_query_handler(func=lambda call: call.data == 'set_time')
 def callback_set_time(call):
-    msg = bot.edit_message_text(
-        chat_id=call.message.chat.id,
-        message_id=call.message.message_id,
-        text="Please enter the time in HH:MM format (24-hour format). For example, 09:00",
-        reply_markup=None
-    )
-    bot.register_next_step_handler(msg, process_time_step)
+    try:
+        bot.edit_message_text(
+            chat_id=call.message.chat.id,
+            message_id=call.message.message_id,
+            text="Please enter the time in HH:MM format (24-hour format). For example, 09:00",
+            reply_markup=None
+        )
+    except telebot.apihelper.ApiTelegramException as e:
+        if "message is not modified" in str(e):
+            pass
+        else:
+            print(f"Ошибка при редактировании сообщения: {e}")
+    bot.register_next_step_handler(call.message, process_time_step)
+
 
 def process_time_step(message):
     try:
@@ -190,19 +207,24 @@ def callback_cancel_notifications(call):
         try:
             scheduler.remove_job(job_id)
         except JobLookupError:
-            pass  # The job might not exist
-        bot.edit_message_text(
-            chat_id=call.message.chat.id,
-            message_id=call.message.message_id,
-            text="Daily notifications have been canceled.",
-            reply_markup=main_menu_inline()
-        )
+            pass
+        new_text = "Ежедневные уведомления отменены."
     else:
-        bot.edit_message_text(
-            chat_id=call.message.chat.id,
-            message_id=call.message.message_id,
-            text="You have no active notifications.",
-            reply_markup=main_menu_inline()
-        )
+        new_text = "У вас нет активных уведомлений."
+    if call.message.text != new_text:
+        try:
+            bot.edit_message_text(
+                chat_id=call.message.chat.id,
+                message_id=call.message.message_id,
+                text=new_text,
+                reply_markup=main_menu_inline()
+            )
+        except telebot.apihelper.ApiTelegramException as e:
+            if "message is not modified" in str(e):
+                pass
+            else:
+                print(f"Ошибка при редактировании сообщения: {e}")
+    else:
+        pass
 
 bot.polling()
