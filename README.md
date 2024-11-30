@@ -1,5 +1,7 @@
 # 🌦️ Telegram Weather Station Bot
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/a99aa965e2dc4688b0e28fbfa34bd04c)](https://app.codacy.com/gh/CyberScopeToday/ecowittweatherbot?utm_source=github.com&utm_medium=referral&utm_content=CyberScopeToday/ecowittweatherbot&utm_campaign=Badge_Grade)
+
 This is a Telegram bot that interfaces with a weather station to provide users with real-time weather data, historical weather trends, forecasts using LSTM neural networks, and personalized weather-related notifications and recommendations.
 
 ## Features
