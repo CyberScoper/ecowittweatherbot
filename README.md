@@ -1,5 +1,7 @@
 # 🌦️ Telegram Weather Station Bot
 
+[![CodeFactor](https://www.codefactor.io/repository/github/cyberscopetoday/ecowittweatherbot/badge)](https://www.codefactor.io/repository/github/cyberscopetoday/ecowittweatherbot)
+
 This is a Telegram bot that interfaces with a weather station to provide users with real-time weather data, historical weather trends, forecasts using LSTM neural networks, and personalized weather-related notifications and recommendations.
 
 ## Features
